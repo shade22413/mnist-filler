@@ -15,12 +15,13 @@ def torch_train_loop(model, data_train, data_test, batch_size=32, num_epochs=60,
                      seed=12362736):
     random.seed(seed, version=2)
     torch.manual_seed(seed)
+    if cuda:
+        model = model.cuda()
+
     optimizer = optimizer(model.parameters(), lr, weight_decay=weight_decay)
     best_loss = float('inf')
     not_improved = 0
     best_model = None
-    if cuda:
-        model = model.cuda()
     for epoch in range(num_epochs):
         print("Epoch", epoch)
         total_loss = 0
