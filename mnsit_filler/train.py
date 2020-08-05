@@ -39,7 +39,7 @@ def torch_train_loop(model, data_train, data_test, batch_size=32, num_epochs=60,
             inputs = np.stack(inputs, axis=0)
             targets = np.stack(targets, axis=0)
 
-            inputs = one_hot(torch.from_numpy(inputs), 8)
+            inputs = one_hot(torch.from_numpy(inputs), 2)
 
             inputs, targets = inputs.float(), torch.from_numpy(targets).long()
             inputs, targets = inputs.view(*inputs.shape[:-3], -1, inputs.shape[-1]), \
