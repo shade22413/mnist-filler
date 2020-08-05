@@ -6,7 +6,7 @@ from torch import nn
 import matplotlib.pyplot as plt
 
 import numpy as np
-from mnsit_filler.utils import shuffle_jointly, hide_part
+from mnsit_filler.utils import shuffle_jointly, hide_part, one_hot
 
 
 def torch_train_loop(model, data_train, data_test, batch_size=32, num_epochs=60,
@@ -36,21 +36,16 @@ def torch_train_loop(model, data_train, data_test, batch_size=32, num_epochs=60,
                 img, img_org = hide_part(images[i], part=0.5)
                 inputs.append(img)
                 targets.append(img_org)
-                """plt.subplot(1,2,1)
-                plt.imshow(img_org)
-                plt.subplot(1,2,2)
-                plt.imshow(img)
-                plt.show()"""
             inputs = np.stack(inputs, axis=0)
             targets = np.stack(targets, axis=0)
-            targets = targets.argmax(axis=-1)
 
-            inputs, targets = torch.from_numpy(inputs).float(), torch.from_numpy(targets).float()
+            inputs = one_hot(torch.from_numpy(inputs), 8)
+
+            inputs, targets = inputs.float(), torch.from_numpy(targets).long()
             inputs, targets = inputs.view(*inputs.shape[:-3], -1, inputs.shape[-1]), \
-                              targets.view(*targets.shape[:-3], -1, targets.shape[-1])
+                              targets.view(*targets.shape[:-2], -1)
             if cuda:
                 inputs, targets = inputs.cuda(), targets.cuda()
-
 
             out = model(inputs)
             loss = criterion(out, targets)
@@ -69,13 +64,17 @@ def torch_train_loop(model, data_train, data_test, batch_size=32, num_epochs=60,
             images = data_test[i:i + batch_size]
             inputs, targets = [], []
             for i in range(images.shape[0]):
-                img, img_org = hide_part(images[i])
+                img, img_org = hide_part(images[i], part=0.5)
                 inputs.append(img)
                 targets.append(img_org)
             inputs = np.stack(inputs, axis=0)
             targets = np.stack(targets, axis=0)
 
-            inputs, targets = torch.from_numpy(inputs).float(), torch.from_numpy(targets).float()
+            inputs = one_hot(torch.from_numpy(inputs), 8)
+
+            inputs, targets = inputs.float(), torch.from_numpy(targets).long()
+            inputs, targets = inputs.view(*inputs.shape[:-3], -1, inputs.shape[-1]), \
+                              targets.view(*targets.shape[:-2], -1)
             if cuda:
                 inputs, targets = inputs.cuda(), targets.cuda()
 

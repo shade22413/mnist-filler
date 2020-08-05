@@ -12,9 +12,9 @@ from torch import nn
 
 
 def one_hot(y, num_classes):
-    scatter_dim = len(y.size())
-    y_tensor = y.view(*y.size(), -1)
-    zeros = torch.zeros(*y.size(), num_classes, dtype=y.dtype)
+    scatter_dim = len(y.shape)
+    y_tensor = y.view(*y.shape, -1)
+    zeros = torch.zeros(*y.shape, num_classes, dtype=y.dtype)
     return zeros.scatter(scatter_dim, y_tensor, 1)
 
 

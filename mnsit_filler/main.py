@@ -5,14 +5,13 @@ from mnsit_filler.attention_rnn import AttentionRNN
 from sklearn.model_selection import train_test_split
 from mnsit_filler.train import torch_train_loop
 from torch import nn
-from mnsit_filler.utils import one_hot
+from mnsit_filler.utils import one_hot, LabelSmoothLoss
 import numpy as np
 
 mnist = torchvision.datasets.MNIST('./', download=False)
 mnist_target = mnist.targets
-mnist = mnist.data.numpy()
+mnist = mnist.data.long()
 mnist = mnist // 32
-mnist = one_hot(mnist, num_classes=8)
 print(mnist.shape)
 
 
@@ -26,7 +25,7 @@ model = AttentionRNN(8, 8, 28*28, project_size=28, encoder_hidden_size=64, encod
 
 print(model)
 
-model = torch_train_loop(model, data_train, data_test, batch_size=32, num_epochs=60, criterion=nn.MSELoss(),
+model = torch_train_loop(model, data_train, data_test, batch_size=4, num_epochs=60, criterion=LabelSmoothLoss(0.02),
                          print_every=1, lr=0.001)
 
 torch.save(model, 'model.pt')
